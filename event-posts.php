@@ -9,6 +9,143 @@ Author URI: http://www.wptheming.com
 License: GPLv2 or later
 */
 
+/* FRONT END CODE EXAMPLES
+-------------------------- */
+
+// SIMPLE
+/*
+<?php
+	$has_start = get_post_meta($post->ID, '_start_month', true);
+	if ( $has_start ) {
+		echo '<p class="event-time-car">'.get_post_meta($post->ID, '_start_day', true).'/';
+		echo ''.get_post_meta($post->ID, '_start_month', true).'/';
+		echo ''.get_post_meta($post->ID, '_start_year', true).' ';
+	}
+	$has_start_time = get_post_meta($post->ID, '_start_hour', true);
+	if ( $has_start_time ) {
+		echo ''.get_post_meta($post->ID, '_start_hour', true).':';
+		echo ''.get_post_meta($post->ID, '_start_minute', true).'';
+	}
+	$has_end = get_post_meta($post->ID, '_end_month', true);
+	if ( $has_end ) {
+		echo ' &#8211; '.get_post_meta($post->ID, '_end_day', true).'/';
+		echo ''.get_post_meta($post->ID, '_end_month', true).'/';
+		echo ''.get_post_meta($post->ID, '_end_year', true).' ';
+	}
+	$has_end_time = get_post_meta($post->ID, '_end_hour', true);
+	if ( $has_end_time ) {
+		echo ''.get_post_meta($post->ID, '_end_hour', true).':';
+		echo ''.get_post_meta($post->ID, '_end_minute', true).'';
+	}
+	$has_location = get_post_meta($post->ID, '_event_location', true);
+	if ( $has_location ) {
+		echo ' '.get_post_meta($post->ID, '_event_location', true).' ';
+	}
+	if ( $has_start ) {
+		echo '</p>';
+	}
+	else { 
+		echo '';
+	}
+?>
+*/
+
+// ADVANCED
+
+/*
+
+<?php
+// http://codex.wordpress.org/Function_Reference/current_time
+$current_time = current_time('mysql');
+list( $today_year, $today_month, $today_day, $hour, $minute, $second ) = split( '([^0-9])', $current_time );
+$current_timestamp = $today_year . $today_month . $today_day . $hour . $minute;
+// Compare event time to current time
+$meta_query = array(
+   array(
+       'key' => '_start_eventtimestamp',
+       'value' => $current_timestamp,
+       'compare' => '>'
+   )
+);
+// Order newest event first
+$args = array(
+   'post_type' => 'post',
+   'meta_query' => $meta_query,
+   'meta_key' => '_start_eventtimestamp',
+   'orderby'=> 'meta_value_num',
+   'order' => 'ASC',
+   'posts_per_page' => 4
+   );
+$events = new WP_Query( $args );
+if ( $events->have_posts() ) :
+
+while ( $events->have_posts() ) : $events->the_post();
+// Single event
+echo '<article class="media event">';
+echo '<a class="event-link" href="' . get_permalink() . '">';
+// Start time
+
+   $str = date('D d M', strtotime('' . get_post_meta($post->ID, '_start_year', true) . get_post_meta($post->ID, '_start_month', true) . get_post_meta($post->ID, '_start_day', true) . ''));
+   list($month,$day,$year,$time) = preg_split('/[ ,]/',$str,false,PREG_SPLIT_NO_EMPTY);
+preg_match('/([0-9]+):([0-9]+)([AP]M)/',$time,$timeparts);
+list($time,$hour,$minute,$ampm) = $timeparts;
+   echo '<div class="event-date multi-date">';
+               echo '<div class="start-date">';
+   echo '<div class="event-weekday">';
+               echo $month;
+   echo '</div>';
+   echo '<div class="event-day">';
+               echo $day;
+   echo '</div>';
+   echo '<div class="event-month">';
+               echo $year;
+   echo '</div>';
+   echo '</div>';
+
+   // End time
+
+   $str = date('D d M', strtotime('' . get_post_meta($post->ID, '_end_year', true) . get_post_meta($post->ID, '_end_month', true) . get_post_meta($post->ID, '_end_day', true) . ''));
+   list($enddate,$endday,$endyear,$time) = preg_split('/[ ,]/',$str,false,PREG_SPLIT_NO_EMPTY);
+preg_match('/([0-9]+):([0-9]+)([AP]M)/',$time,$timeparts);
+list($time,$hour,$minute,$ampm) = $timeparts;
+
+   $has_ending = get_post_meta($post->ID, '_end_month', true);
+   //var_dump($has_ending); die;
+   if ( $has_ending !== '100' ) {
+   	   echo '<span class="date-separator">-</span>';
+       echo '<div class="end-date">';
+       echo '<div class="event-weekday">';
+                   echo $enddate;
+       echo '</div>';
+       echo '<div class="event-day">';
+                   echo $endday;
+       echo '</div>';
+       echo '<div class="event-month">';
+                   echo $endyear;
+       echo '</div>';
+       echo '</div>';
+   }
+
+   else {
+       echo '';
+   }
+
+   echo '</div>';
+   // Title
+   echo '<h6>' . get_the_title() . '</h6>';
+   // Time and location
+   echo '<span class="time-location">';
+   echo '' . get_post_meta($post->ID, '_start_hour', true) . ':';
+   echo '' . get_post_meta($post->ID, '_start_minute', true) . '';
+   echo ' ' . get_post_meta($post->ID, '_event_location', true) . '';
+   echo '</span>';
+   echo '</a>';
+   echo '</article>';
+   endwhile;
+endif; ?>
+
+*/
+
 /**
  * Flushes rewrite rules on plugin activation to ensure event posts don't 404
  * http://codex.wordpress.org/Function_Reference/flush_rewrite_rules
