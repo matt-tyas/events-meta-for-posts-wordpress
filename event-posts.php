@@ -83,54 +83,60 @@ while ( $events->have_posts() ) : $events->the_post();
 // Single event
 echo '<article class="media event">';
 echo '<a class="event-link" href="' . get_permalink() . '">';
-// Start time
 
+
+// Start time
    $str = date('D d M', strtotime('' . get_post_meta($post->ID, '_start_year', true) . get_post_meta($post->ID, '_start_month', true) . get_post_meta($post->ID, '_start_day', true) . ''));
    list($month,$day,$year,$time) = preg_split('/[ ,]/',$str,false,PREG_SPLIT_NO_EMPTY);
 preg_match('/([0-9]+):([0-9]+)([AP]M)/',$time,$timeparts);
 list($time,$hour,$minute,$ampm) = $timeparts;
-   echo '<div class="event-date multi-date">';
-               echo '<div class="start-date">';
-   echo '<div class="event-weekday">';
-               echo $month;
-   echo '</div>';
-   echo '<div class="event-day">';
-               echo $day;
-   echo '</div>';
-   echo '<div class="event-month">';
-               echo $year;
-   echo '</div>';
-   echo '</div>';
 
-   // End time
-
-   $str = date('D d M', strtotime('' . get_post_meta($post->ID, '_end_year', true) . get_post_meta($post->ID, '_end_month', true) . get_post_meta($post->ID, '_end_day', true) . ''));
-   list($enddate,$endday,$endyear,$time) = preg_split('/[ ,]/',$str,false,PREG_SPLIT_NO_EMPTY);
-preg_match('/([0-9]+):([0-9]+)([AP]M)/',$time,$timeparts);
-list($time,$hour,$minute,$ampm) = $timeparts;
-
-   $has_ending = get_post_meta($post->ID, '_end_month', true);
-   //var_dump($has_ending); die;
-   if ( $has_ending !== '100' ) {
-   	   echo '<span class="date-separator">-</span>';
-       echo '<div class="end-date">';
-       echo '<div class="event-weekday">';
-                   echo $enddate;
-       echo '</div>';
-       echo '<div class="event-day">';
-                   echo $endday;
-       echo '</div>';
-       echo '<div class="event-month">';
-                   echo $endyear;
-       echo '</div>';
-       echo '</div>';
+   $has_start = get_post_meta($post->ID, '_start_month', true);
+?>
+    <div class="event-date multi-date">
+<?php
+   if ( $has_start !== '100' ) {
+?>  
+        <div class="start-date">
+            <div class="event-weekday">
+                <?php echo $month; ?>
+            </div>
+            <div class="event-day">
+                <?php echo $day; ?>
+            </div>
+            <div class="event-month">
+                <?php echo $year; ?>
+            </div>
+        </div>
+<?php
    }
+   
+    // End time
+    $str = date('D d M', strtotime('' . get_post_meta($post->ID, '_end_year', true) . get_post_meta($post->ID, '_end_month', true) . get_post_meta($post->ID, '_end_day', true) . ''));
+    list($enddate,$endday,$endyear,$time) = preg_split('/[ ,]/',$str,false,PREG_SPLIT_NO_EMPTY);
+    preg_match('/([0-9]+):([0-9]+)([AP]M)/',$time,$timeparts);
+    list($time,$hour,$minute,$ampm) = $timeparts;
 
-   else {
-       echo '';
-   }
-
-   echo '</div>';
+    $has_ending = get_post_meta($post->ID, '_end_month', true);
+    if ( $has_ending !== '100' ) {
+?>
+        <span class="date-separator">-</span>
+        <div class="end-date">
+            <div class="event-weekday">
+            <?php echo $enddate; ?>
+            </div>
+            <div class="event-day">
+            <?php echo $endday; ?>
+            </div>
+            <div class="event-month">
+            <?php echo $endyear; ?>
+            </div>
+        </div>
+<?php        
+    }
+?>
+   </div>
+<?php
    // Title
    echo '<h6>' . get_the_title() . '</h6>';
    // Time and location
